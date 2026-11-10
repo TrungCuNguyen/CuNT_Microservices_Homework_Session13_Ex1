@@ -1,0 +1,36 @@
+### 1. Đăng ký tài khoản thành công (Role mặc định USER)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "user_demo",
+  "password": "Password123@"
+}
+
+### 2. Đăng ký tài khoản với Role ADMIN
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin_demo",
+  "password": "AdminPassword123@",
+  "role": "ADMIN"
+}
+
+### 3. Đăng ký tài khoản trùng lặp (Kỳ vọng trả về 409 Conflict)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "user_demo",
+  "password": "Password123@"
+}
+
+### 4. Đăng ký thông tin không hợp lệ (Password dưới 6 ký tự - Kỳ vọng 400 Bad Request)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "invalid_user",
+  "password": "123"
+}

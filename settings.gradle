@@ -1,0 +1,3 @@
+rootProject.name = 'ex_ss13_micro'
+
+include 'identity-service'
