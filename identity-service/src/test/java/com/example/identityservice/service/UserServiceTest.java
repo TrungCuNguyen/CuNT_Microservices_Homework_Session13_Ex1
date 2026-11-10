@@ -4,8 +4,10 @@ import com.example.identityservice.dto.RegisterRequest;
 import com.example.identityservice.dto.UserResponse;
 import com.example.identityservice.entity.User;
 import com.example.identityservice.exception.DuplicateResourceException;
+import com.example.identityservice.exception.ResourceNotFoundException;
 import com.example.identityservice.repository.UserRepository;
 import com.example.identityservice.service.impl.UserServiceImpl;
+import com.example.identityservice.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +30,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private JwtUtil jwtUtil;
+
     @Spy
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -35,7 +42,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepository, passwordEncoder);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, jwtUtil);
         registerRequest = new RegisterRequest("john_doe", "password123", "USER");
     }
 
@@ -73,5 +80,28 @@ class UserServiceTest {
 
         assertThrows(DuplicateResourceException.class, () -> userService.register(registerRequest));
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Should generate token when user is found in database")
+    void generateTestToken_Success() {
+        User user = new User("u-1", "john_doe", "hashed_pwd", "USER");
+        when(userRepository.findByUsername("john_doe")).thenReturn(Optional.of(user));
+        when(jwtUtil.generateToken(user)).thenReturn("mock.jwt.token");
+
+        String token = userService.generateTestToken("john_doe");
+
+        assertEquals("mock.jwt.token", token);
+        verify(userRepository, times(1)).findByUsername("john_doe");
+        verify(jwtUtil, times(1)).generateToken(user);
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when user is not found")
+    void generateTestToken_UserNotFound_ThrowsException() {
+        when(userRepository.findByUsername("unknown_user")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.generateTestToken("unknown_user"));
+        verify(jwtUtil, never()).generateToken(any());
     }
 }

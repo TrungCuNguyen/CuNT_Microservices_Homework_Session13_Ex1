@@ -3,6 +3,7 @@ package com.example.identityservice.controller;
 import com.example.identityservice.config.SecurityConfig;
 import com.example.identityservice.dto.RegisterRequest;
 import com.example.identityservice.dto.UserResponse;
+import com.example.identityservice.exception.ResourceNotFoundException;
 import com.example.identityservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -59,5 +61,29 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/auth/test-token should return 200 OK and JWT string")
+    void getTestToken_Success() throws Exception {
+        String mockJwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInJvbGUiOiJVU0VSIiwiZXhwIjoxNzMxMjUxNjAwfQ.testSignature";
+        when(userService.generateTestToken("testuser")).thenReturn(mockJwt);
+
+        mockMvc.perform(get("/api/auth/test-token")
+                        .param("username", "testuser"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(mockJwt));
+    }
+
+    @Test
+    @DisplayName("GET /api/auth/test-token should return 404 when user is not found")
+    void getTestToken_NotFound() throws Exception {
+        when(userService.generateTestToken("notfound"))
+                .thenThrow(new ResourceNotFoundException("User not found with username: notfound"));
+
+        mockMvc.perform(get("/api/auth/test-token")
+                        .param("username", "notfound"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found with username: notfound"));
     }
 }

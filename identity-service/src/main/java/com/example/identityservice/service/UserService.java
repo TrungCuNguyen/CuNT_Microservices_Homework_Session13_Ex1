@@ -5,5 +5,6 @@ import com.example.identityservice.dto.UserResponse;
 
 public interface UserService {
     UserResponse register(RegisterRequest request);
+    String generateTestToken(String username);
 }
 

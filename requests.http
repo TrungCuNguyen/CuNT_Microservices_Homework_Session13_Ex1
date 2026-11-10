@@ -35,3 +35,13 @@ Content-Type: application/json
   "password": "123"
 }
 
+### 5. Lấy JWT Token cho user_demo (GET /api/auth/test-token)
+GET http://localhost:8080/api/auth/test-token?username=user_demo
+
+### 6. Lấy JWT Token cho admin_demo (GET /api/auth/test-token)
+GET http://localhost:8080/api/auth/test-token?username=admin_demo
+
+### 7. Lấy JWT Token cho user không tồn tại (Kỳ vọng trả về 404 Not Found)
+GET http://localhost:8080/api/auth/test-token?username=non_existent_user
+
+
