@@ -72,3 +72,4 @@ class RegisterIntegrationTest {
                 "BCrypt encoder must match raw password with stored hash");
     }
 }
+

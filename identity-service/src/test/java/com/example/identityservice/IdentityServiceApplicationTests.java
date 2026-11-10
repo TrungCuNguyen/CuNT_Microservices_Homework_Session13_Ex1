@@ -10,3 +10,4 @@ class IdentityServiceApplicationTests {
     void contextLoads() {
     }
 }
+

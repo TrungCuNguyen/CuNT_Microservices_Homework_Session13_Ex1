@@ -143,3 +143,4 @@ Kết quả hiển thị:
  e44c2045-8fe3-44ce-b489-bb011559ee2d | user_demo   | $2a$10$wK1eO79Gk4wPzJdM0gZzO.e0bMsnFsmB03OaIqm9g58j7bJ12qHw6 | USER
 ```
 => Mật khẩu được mã hóa an toàn dạng chuỗi băm BCrypt (`$2a$10$...`), không lộ mật khẩu gốc.
+
